@@ -5,6 +5,22 @@ from prompt_engine import build_prompt
 from llm_client import generate_text
 from memory_store import save_campaign
 
+def revise_campaign(original_output, feedback):
+        prompt = f"""
+            You are revising a marketing campaign.
+            
+            Original Campaign:
+            {original_output}
+            
+            Client Feedback:
+            {feedback}
+            
+            Return only the improved campaign.
+            
+            ### REVISED OUTPUT:
+            """
+        raw = generate_text(prompt)
+        return raw.split("### REVISED OUTPUT")[-1].strip()
 
 def generate_campaign(
     brand_name,
@@ -108,6 +124,24 @@ with gr.Blocks(title="Rookus – Creative Campaign as a Service (Phase 1)") as d
         ],
         outputs=output
     )
+    feedback = gr.Textbox(
+        label="Client Feedback / Revision Request",
+        placeholder="Make it more premium, less salesy, etc."
+    )
+    
+    revise_btn = gr.Button("🔁 Revise Campaign")
+    
+    revised_output = gr.Textbox(
+        label="Revised Campaign Output",
+        lines=20
+    )
+    
+    revise_btn.click(
+        fn=revise_campaign,
+        inputs=[output, feedback],
+        outputs=revised_output
+    )
+
 
 # 🚀 Launch app
 demo.launch()
