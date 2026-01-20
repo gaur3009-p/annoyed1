@@ -19,4 +19,6 @@ RULES:
 - Be realistic and brand-safe
 - Avoid exaggerated claims
 - Sound human, not AI
+
+### OUTPUT (DO NOT REPEAT ANYTHING ABOVE THIS LINE):
 """
