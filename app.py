@@ -43,6 +43,10 @@ with gr.Blocks(title="Rookus – Creative Campaign as a Service") as demo:
         ["Awareness", "Leads", "Sales"],
         label="Campaign Objective"
     )
+    brand_description = gr.Textbox(
+        label="Brand Description",
+        placeholder="What does your brand do? What makes it unique?"
+    )
     tone = gr.Dropdown(
         ["Premium", "Friendly", "Bold", "Trustworthy", "Aggressive"],
         label="Brand Tone"
