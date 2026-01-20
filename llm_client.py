@@ -1,7 +1,7 @@
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 
-MODEL_NAME = "NousResearch/Nous-Hermes-2-Mistral-7B"
+MODEL_NAME = "NousResearch/Nous-Hermes-2-Mistral-7B-DPO-GGUF"
 
 bnb_config = BitsAndBytesConfig(
     load_in_4bit=True,
