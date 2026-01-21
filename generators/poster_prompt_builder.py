@@ -1,22 +1,20 @@
-def build_poster_prompt(campaign, headline, copy):
+def build_poster_prompt(campaign):
     return f"""
-Create a high-conversion advertising poster.
+A modern SaaS marketing poster background.
 
-Brand: {campaign['brand']}
 Industry: {campaign['industry']}
-Tone: {campaign['tone']}
+Brand tone: {campaign['tone']}
 
-Headline:
-{headline}
-
-Supporting Copy:
-{copy}
-
-Visual Style:
+Style:
 - Clean
-- Modern
+- Minimal
+- Professional
+- Abstract tech visuals
+- Soft gradients
 - High contrast
-- Platform-agnostic
-
-No text overflow. Center-aligned.
+- No text
+- No letters
+- No words
+- No typography
+- Background only
 """
