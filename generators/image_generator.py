@@ -1,41 +1,28 @@
-import os
 import torch
-from diffusers import StableDiffusion3Pipeline
-from huggingface_hub import login
+from diffusers import AutoPipelineForText2Image
 
-# =========================
-# 🔐 Colab HF Token
-# =========================
-try:
-    from google.colab import userdata
-    HF_TOKEN = userdata.get("HF_TOKEN")
-except Exception:
-    HF_TOKEN = os.getenv("HF_TOKEN")
+MODEL_ID = "stabilityai/sdxl-turbo"
 
-if HF_TOKEN:
-    login(token=HF_TOKEN)
-else:
-    raise RuntimeError("HF_TOKEN not found. Set it in Colab userdata.")
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
-# =========================
-# 🎨 SD 3.5 MEDIUM (T4 SAFE)
-# =========================
-MODEL_ID = "stabilityai/stable-diffusion-3.5-medium"
-
-pipe = StableDiffusion3Pipeline.from_pretrained(
+pipe = AutoPipelineForText2Image.from_pretrained(
     MODEL_ID,
-    torch_dtype=torch.float16
+    torch_dtype=torch.float16,
+    variant="fp16"
 )
 
-pipe.enable_attention_slicing()
-pipe.enable_vae_slicing()
-pipe.enable_model_cpu_offload()
-pipe.to("cuda")
+pipe.to(device)
+pipe.set_progress_bar_config(disable=True)
 
 def generate_poster(prompt: str):
+    """
+    Generate a marketing poster image from text prompt.
+    T4-safe, fast, deterministic enough for ads.
+    """
     image = pipe(
-        prompt,
-        num_inference_steps=24,
-        guidance_scale=4.0
+        prompt=prompt,
+        num_inference_steps=4,   # sd-turbo sweet spot
+        guidance_scale=0.0       # turbo is trained without CFG
     ).images[0]
+
     return image
