@@ -4,24 +4,46 @@ from campaign_structurer import structure_campaign
 from prompt_engine import build_prompt
 from llm_client import generate_text
 from memory_store import save_campaign
+from scoring.emotion_scorer import score_emotions
 
+
+# =========================
+# 🧠 Emotion Ranking Logic
+# =========================
+def rank_output(output: str):
+    scores = score_emotions(output)
+    ranking = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+
+    return {
+        "emotion_scores": scores,
+        "dominant_emotion": ranking[0][0]
+    }
+
+
+# =========================
+# 🔁 Revision Logic (UNCHANGED)
+# =========================
 def revise_campaign(original_output, feedback):
-        prompt = f"""
-            You are revising a marketing campaign.
-            
-            Original Campaign:
-            {original_output}
-            
-            Client Feedback:
-            {feedback}
-            
-            Return only the improved campaign.
-            
-            ### REVISED OUTPUT:
-            """
-        raw = generate_text(prompt)
-        return raw.split("### REVISED OUTPUT")[-1].strip()
+    prompt = f"""
+You are revising a marketing campaign.
 
+Original Campaign:
+{original_output}
+
+Client Feedback:
+{feedback}
+
+Return only the improved campaign.
+
+### REVISED OUTPUT:
+"""
+    raw = generate_text(prompt)
+    return raw.split("### REVISED OUTPUT")[-1].strip()
+
+
+# =========================
+# 🚀 Main Generation Logic
+# =========================
 def generate_campaign(
     brand_name,
     brand_description,
@@ -31,7 +53,7 @@ def generate_campaign(
     tone,
     platforms
 ):
-    # 1️⃣ Structure campaign (explicit reasoning layer)
+    # 1️⃣ Structure campaign
     campaign = structure_campaign(
         brand_name=brand_name,
         brand_description=brand_description,
@@ -45,24 +67,41 @@ def generate_campaign(
     # 2️⃣ Build prompt
     prompt = build_prompt(campaign)
 
-    # 3️⃣ Generate campaign using LLM
-    output = generate_text(prompt)
+    # 3️⃣ Generate raw output
+    raw_output = generate_text(prompt)
 
-    # 4️⃣ Store campaign + output (Phase 1 memory)
+    # 4️⃣ Clean prompt leakage
+    if "### OUTPUT" in raw_output:
+        output = raw_output.split("### OUTPUT")[-1].strip()
+    else:
+        output = raw_output.strip()
+
+    # 5️⃣ Save campaign (learning memory)
     save_campaign(campaign, output)
 
-    return output
+    # 6️⃣ Emotion scoring
+    emotion_result = rank_output(output)
+
+    emotion_scores_text = "\n".join(
+        [f"{emotion}: {score}" for emotion, score in emotion_result["emotion_scores"].items()]
+    )
+
+    emotion_summary = (
+        f"Dominant Emotion: {emotion_result['dominant_emotion']}\n\n"
+        f"Emotion Scores:\n{emotion_scores_text}"
+    )
+
+    return output, emotion_summary
 
 
 # =========================
-# 🎨 Gradio UI
+# 🎨 Gradio UI (MINIMALLY EXTENDED)
 # =========================
-
-with gr.Blocks(title="Rookus – Creative Campaign as a Service (Phase 1)") as demo:
+with gr.Blocks(title="Rookus – Creative Campaign as a Service (Phase 1.5)") as demo:
     gr.Markdown(
         """
         ## 🚀 Rookus – AI-Powered Creative Campaign Studio  
-        **Phase 1 | Human-in-the-Loop | Brand-Safe AI**
+        **Phase 1.5 | Human-in-the-Loop | Emotion-Aware AI**
         """
     )
 
@@ -111,6 +150,11 @@ with gr.Blocks(title="Rookus – Creative Campaign as a Service (Phase 1)") as d
         lines=22
     )
 
+    emotion_output = gr.Textbox(
+        label="🧠 Emotion Analysis",
+        lines=6
+    )
+
     generate_btn.click(
         fn=generate_campaign,
         inputs=[
@@ -122,20 +166,22 @@ with gr.Blocks(title="Rookus – Creative Campaign as a Service (Phase 1)") as d
             tone,
             platforms
         ],
-        outputs=output
+        outputs=[output, emotion_output]
     )
+
+    # 🔁 Revision UI (UNCHANGED FLOW)
     feedback = gr.Textbox(
         label="Client Feedback / Revision Request",
         placeholder="Make it more premium, less salesy, etc."
     )
-    
+
     revise_btn = gr.Button("🔁 Revise Campaign")
-    
+
     revised_output = gr.Textbox(
         label="Revised Campaign Output",
         lines=20
     )
-    
+
     revise_btn.click(
         fn=revise_campaign,
         inputs=[output, feedback],
