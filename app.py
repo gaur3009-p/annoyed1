@@ -190,4 +190,4 @@ with gr.Blocks(title="Rookus – Creative Campaign as a Service (Phase 1.5)") as
 
 
 # 🚀 Launch app
-demo.launch()
+demo.launch(share = True)
