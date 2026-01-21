@@ -6,3 +6,5 @@ sentencepiece
 bitsandbytes
 chromadb
 sentence-transformers
+diffusers
+huggingface_hub
