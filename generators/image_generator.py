@@ -54,7 +54,6 @@ pipe = StableDiffusion3Pipeline.from_pretrained(
 # MEMORY SAFETY (T4)
 # ==================================================
 pipe.enable_attention_slicing()
-pipe.enable_vae_slicing()
 pipe.enable_model_cpu_offload()
 
 # ==================================================
