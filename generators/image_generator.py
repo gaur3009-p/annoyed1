@@ -25,6 +25,7 @@ transformer_nf4 = SD3Transformer2DModel.from_pretrained(
 # -----------------------------
 pipe = StableDiffusion3Pipeline.from_pretrained(
     MODEL_ID,
+    token = HF_TOKEN,
     transformer=transformer_nf4,
     torch_dtype=torch.float16,
 )
