@@ -1,17 +1,11 @@
 import gradio as gr
 
-# =========================
-# Core Imports
-# =========================
 from campaign_structurer import structure_campaign
 from prompt_engine import build_prompt
 from llm_client import generate_text
 from memory_store import save_campaign
 from scoring.emotion_scorer import score_emotions
 
-# =========================
-# Phase 2 Imports
-# =========================
 from agents.variant_agent import build_variant_prompt
 from scoring.copy_quality_scorer import score_copy_quality
 from scoring.platform_fit_scorer import score_platform_fit
@@ -19,10 +13,6 @@ from generators.poster_prompt_builder import build_poster_prompt
 from generators.image_generator import generate_poster
 from decision_engine.variant_selector import select_best_variant
 
-
-# ======================================================
-# 🧠 Emotion Ranking (Phase 1.5)
-# ======================================================
 def rank_output(output: str):
     scores = score_emotions(output)
     ranking = sorted(scores.items(), key=lambda x: x[1], reverse=True)
@@ -33,9 +23,6 @@ def rank_output(output: str):
     }
 
 
-# ======================================================
-# 🧩 Headline & Copy Extraction
-# ======================================================
 def extract_headlines_and_copies(text):
     lines = [l.strip() for l in text.split("\n") if l.strip()]
 
@@ -68,10 +55,6 @@ def select_best_copy(copies):
         scored.append((c, emotion + clarity))
     return max(scored, key=lambda x: x[1])[0]
 
-
-# ======================================================
-# 🔁 Revision Logic
-# ======================================================
 def revise_campaign(original_output, feedback):
     prompt = f"""
 You are revising a marketing campaign.
@@ -90,9 +73,6 @@ Return only the improved campaign.
     return raw.split("### REVISED OUTPUT")[-1].strip()
 
 
-# ======================================================
-# 🚀 Phase 1.5 — Single Campaign
-# ======================================================
 def generate_campaign(
     brand_name,
     brand_description,
@@ -125,9 +105,6 @@ def generate_campaign(
     return output, f"Dominant Emotion: {emotion_result['dominant_emotion']}\n\n{emotion_summary}"
 
 
-# ======================================================
-# 🚀 Phase 2 — Multi-Variant + Posters
-# ======================================================
 def run_phase2(
     brand_name,
     brand_description,
@@ -208,9 +185,7 @@ def run_phase2(
     return copy_block, decision_summary, posters
 
 
-# ======================================================
-# 🎨 GRADIO UI
-# ======================================================
+
 with gr.Blocks(title="Rookus – Creative Campaign Studio") as demo:
     gr.Markdown("## 🚀 Rookus – AI-Powered Creative Campaign Studio")
 
