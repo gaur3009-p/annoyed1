@@ -1,20 +1,28 @@
-def build_poster_prompt(campaign):
+def build_poster_prompt(campaign, headline, copy):
     return f"""
-A modern SaaS marketing poster background.
+A high-quality marketing poster background for a SaaS brand.
 
-Industry: {campaign['industry']}
-Brand tone: {campaign['tone']}
+Context:
+- Industry: {campaign['industry']}
+- Brand tone: {campaign['tone']}
+- Primary emotions: {', '.join(campaign['emotion'])}
 
-Style:
+Creative intent (semantic only):
+- Headline meaning: {headline}
+- Supporting message: {copy}
+
+Style rules (STRICT):
 - Clean
 - Minimal
 - Professional
 - Abstract tech visuals
 - Soft gradients
+- Premium lighting
 - High contrast
 - No text
 - No letters
 - No words
 - No typography
+- No logos
 - Background only
 """
