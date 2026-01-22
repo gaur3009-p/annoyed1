@@ -1,28 +1,50 @@
 import torch
-from diffusers import AutoPipelineForText2Image
+from diffusers import BitsAndBytesConfig, SD3Transformer2DModel
+from diffusers import StableDiffusion3Pipeline
 
-MODEL_ID = "stabilityai/sdxl-turbo"
+MODEL_ID = "stabilityai/stable-diffusion-3.5-medium"
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
-
-pipe = AutoPipelineForText2Image.from_pretrained(
-    MODEL_ID,
-    torch_dtype=torch.float16,
-    variant="fp16"
+# -----------------------------
+# NF4 Quantization (Transformer only)
+# -----------------------------
+nf4_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_quant_type="nf4",
+    bnb_4bit_compute_dtype=torch.float16,   # ✅ FIXED
 )
 
-pipe.to(device)
-pipe.set_progress_bar_config(disable=True)
+transformer_nf4 = SD3Transformer2DModel.from_pretrained(
+    MODEL_ID,
+    subfolder="transformer",
+    quantization_config=nf4_config,
+    torch_dtype=torch.float16,
+)
 
-def generate_poster(prompt: str):
-    """
-    Generate a marketing poster image from text prompt.
-    T4-safe, fast, deterministic enough for ads.
-    """
+# -----------------------------
+# Pipeline
+# -----------------------------
+pipe = StableDiffusion3Pipeline.from_pretrained(
+    MODEL_ID,
+    transformer=transformer_nf4,
+    torch_dtype=torch.float16,
+)
+
+# -----------------------------
+# Memory safety (MANDATORY)
+# -----------------------------
+pipe.enable_attention_slicing()
+pipe.enable_vae_slicing()
+pipe.enable_model_cpu_offload()
+
+# -----------------------------
+# Generation
+# -----------------------------
+def generate_background(prompt: str):
     image = pipe(
         prompt=prompt,
-        num_inference_steps=4,   # sd-turbo sweet spot
-        guidance_scale=0.0       # turbo is trained without CFG
+        num_inference_steps=28,     # 24–32 sweet spot
+        guidance_scale=4.0,         # SD3 prefers low CFG
+        max_sequence_length=512,
     ).images[0]
 
     return image
