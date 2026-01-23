@@ -198,10 +198,9 @@ def run_phase2(
         f"🎯 Selected Headline:\n{best_headline}\n\n"
         f"📝 Selected Copy:\n{best_copy}"
     )
-
+    print("HEADLINES:", headlines)
+    print("COPIES:", copies)
     return copy_block, decision_summary, posters
-
-
 
 with gr.Blocks(title="Rookus – Creative Campaign Studio") as demo:
     gr.Markdown("## 🚀 Rookus – AI-Powered Creative Campaign Studio")
