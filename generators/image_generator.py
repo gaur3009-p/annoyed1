@@ -1,74 +1,53 @@
-import os
 import torch
-from huggingface_hub import login
-from diffusers import BitsAndBytesConfig, SD3Transformer2DModel
-from diffusers import StableDiffusion3Pipeline
+from diffusers import StableDiffusionXLPipeline
 
 # ==================================================
-# 🔐 LOAD HF TOKEN (MODULE SCOPE — IMPORTANT)
+# 🚀 SDXL TURBO CONFIG (FASTEST)
 # ==================================================
-HF_TOKEN = os.getenv("HF_TOKEN")
-
-if HF_TOKEN is None:
-    raise RuntimeError(
-        "HF_TOKEN is not set. "
-        "Set it in Colab Secrets or as an environment variable."
-    )
-
-# Login once (safe to call multiple times)
-login(token=HF_TOKEN)
+MODEL_ID = "stabilityai/sdxl-turbo"
 
 # ==================================================
-# MODEL CONFIG
+# LOAD PIPELINE
 # ==================================================
-MODEL_ID = "stabilityai/stable-diffusion-3.5-medium"
-
-nf4_config = BitsAndBytesConfig(
-    load_in_4bit=True,
-    bnb_4bit_quant_type="nf4",
-    bnb_4bit_compute_dtype=torch.float16,
-)
-
-# ==================================================
-# LOAD TRANSFORMER (GATED — TOKEN REQUIRED)
-# ==================================================
-transformer_nf4 = SD3Transformer2DModel.from_pretrained(
+pipe = StableDiffusionXLPipeline.from_pretrained(
     MODEL_ID,
-    subfolder="transformer",
-    quantization_config=nf4_config,
     torch_dtype=torch.float16,
-    token=HF_TOKEN,
+    variant="fp16"
+)
+
+pipe.to("cuda")
+
+# ==================================================
+# PERFORMANCE OPTIMIZATIONS
+# ==================================================
+pipe.enable_attention_slicing("max")
+pipe.enable_vae_slicing()
+
+# ==================================================
+# NEGATIVE PROMPT (CRITICAL FOR QUALITY)
+# ==================================================
+NEGATIVE_PROMPT = (
+    "text, letters, typography, words, logo, watermark, "
+    "low quality, blurry, noise, grain, artifacts, "
+    "distorted shapes, deformed, extra elements"
 )
 
 # ==================================================
-# LOAD PIPELINE (GATED — TOKEN REQUIRED)
-# ==================================================
-pipe = StableDiffusion3Pipeline.from_pretrained(
-    MODEL_ID,
-    transformer=transformer_nf4,
-    torch_dtype=torch.float16,
-    token=HF_TOKEN,
-)
-
-# ==================================================
-# MEMORY SAFETY (T4)
-# ==================================================
-pipe.enable_attention_slicing()
-pipe.enable_model_cpu_offload()
-
-# ==================================================
-# PUBLIC FUNCTION (USED BY app.py)
+# PUBLIC FUNCTION
 # ==================================================
 def generate_poster(prompt: str):
     """
-    Generates a background image only.
-    Text must be overlaid separately using PIL.
+    Ultra-fast poster background generation using SDXL Turbo.
+    ~4–6 steps, high quality, no text.
     """
+
     image = pipe(
         prompt=prompt,
-        num_inference_steps=28,
-        guidance_scale=4.0,
-        max_sequence_length=512,
+        negative_prompt=NEGATIVE_PROMPT,
+        num_inference_steps=6,      # 🔥 Turbo sweet spot
+        guidance_scale=1.5,         # Turbo requires LOW CFG
+        height=768,
+        width=768
     ).images[0]
 
     return image
