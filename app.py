@@ -24,35 +24,52 @@ def rank_output(output: str):
 
 
 def extract_headlines_and_copies(text):
-    lines = [l.strip() for l in text.split("\n") if l.strip()]
+    lines = [l.strip("-•1234567890. ").strip()
+             for l in text.split("\n") if l.strip()]
 
     headlines = []
     copies = []
 
+    buffer = []
+
     for line in lines:
-        if len(line) <= 120:
+        # Likely headline
+        if len(line.split()) <= 10:
             headlines.append(line)
         else:
-            copies.append(line)
+            buffer.append(line)
+
+    # Group long lines into paragraph-style copies
+    if buffer:
+        copies.append(" ".join(buffer))
 
     return headlines, copies
 
-
 def select_best_headline(headlines):
+    if not headlines:
+        return "Professional solution designed for modern businesses"
+
     scored = []
     for h in headlines:
         emotion = max(score_emotions(h).values())
         clarity = score_copy_quality(h)
         scored.append((h, emotion + clarity))
+
     return max(scored, key=lambda x: x[1])[0]
 
-
 def select_best_copy(copies):
+    if not copies:
+        return (
+            "A modern, reliable solution built to help teams work "
+            "smarter, faster, and with greater confidence."
+        )
+
     scored = []
     for c in copies:
         emotion = max(score_emotions(c).values())
         clarity = score_copy_quality(c)
         scored.append((c, emotion + clarity))
+
     return max(scored, key=lambda x: x[1])[0]
 
 def revise_campaign(original_output, feedback):
