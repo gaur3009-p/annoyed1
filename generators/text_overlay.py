@@ -72,4 +72,5 @@ def overlay_text(
         fill=(230, 230, 230),
         font=body_font
     )
+
     return image
