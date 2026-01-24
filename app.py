@@ -5,7 +5,7 @@ from prompt_engine import build_prompt
 from llm_client import generate_text
 from memory_store import save_campaign
 from scoring.emotion_scorer import score_emotions
-
+from generators.text_overlay import overlay_text
 from agents.variant_agent import build_variant_prompt
 from scoring.copy_quality_scorer import score_copy_quality
 from scoring.platform_fit_scorer import score_platform_fit
@@ -174,14 +174,24 @@ def run_phase2(
 
     # -------- Posters --------
     posters = []
+    
+    # Build background-only prompt
+    poster_prompt = build_poster_prompt(campaign)
+    
     for _ in range(3):
-        prompt = build_poster_prompt(
-            campaign,
+        # 1️⃣ Generate clean background
+        background = generate_poster(poster_prompt)
+    
+        # 2️⃣ Overlay perfect text
+        final_poster = overlay_text(
+            background,
             best_headline,
             best_copy
         )
-        posters.append(generate_poster(prompt))
+    
+        posters.append(final_poster)
 
+    
     # -------- UI --------
     copy_block = ""
     for v in scored_variants:
