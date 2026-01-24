@@ -1,7 +1,12 @@
 from PIL import Image, ImageDraw, ImageFont
 import os
 
-FONT_DIR = "fonts"
+# --------------------------------------------------
+# 🔒 ABSOLUTE, SAFE FONT PATHS
+# --------------------------------------------------
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FONT_DIR = os.path.join(BASE_DIR, "..", "fonts")
 
 HEADLINE_FONT_PATH = os.path.join(
     FONT_DIR, "Inter-Bold-700.otf"
@@ -19,8 +24,19 @@ def overlay_text(
 ):
     """
     Adds deterministic, brand-safe text overlay.
-    No AI involved here.
+    Works in Gradio / Colab / Kaggle / HF Spaces.
     """
+
+    # --- SAFETY CHECK (important for debugging) ---
+    if not os.path.exists(HEADLINE_FONT_PATH):
+        raise FileNotFoundError(
+            f"Headline font not found at {HEADLINE_FONT_PATH}"
+        )
+
+    if not os.path.exists(BODY_FONT_PATH):
+        raise FileNotFoundError(
+            f"Body font not found at {BODY_FONT_PATH}"
+        )
 
     draw = ImageDraw.Draw(image)
     width, height = image.size
