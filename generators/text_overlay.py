@@ -2,11 +2,20 @@ from PIL import Image, ImageDraw, ImageFont
 import os
 
 # --------------------------------------------------
-# 🔒 ABSOLUTE, SAFE FONT PATHS
+# 🔒 RESOLVE PROJECT ROOT SAFELY
 # --------------------------------------------------
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-FONT_DIR = os.path.join(BASE_DIR, "..", "fonts")
+def get_project_root():
+    """
+    Finds the project root dynamically.
+    Assumes this file lives in <root>/generators/
+    """
+    return os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..")
+    )
+
+PROJECT_ROOT = get_project_root()
+FONT_DIR = os.path.join(PROJECT_ROOT, "fonts")
 
 HEADLINE_FONT_PATH = os.path.join(
     FONT_DIR, "Inter-Bold-700.otf"
@@ -17,35 +26,41 @@ BODY_FONT_PATH = os.path.join(
 )
 
 
+def _load_font_safe(path, size):
+    """
+    Loads font safely with fallback to default PIL font.
+    Never crashes the app.
+    """
+    try:
+        if os.path.exists(path):
+            return ImageFont.truetype(path, size)
+        else:
+            print(f"[WARN] Font not found: {path}")
+    except Exception as e:
+        print(f"[WARN] Font load failed: {e}")
+
+    # Fallback (never fails)
+    return ImageFont.load_default()
+
+
 def overlay_text(
     image: Image.Image,
     headline: str,
     copy: str
 ):
     """
-    Adds deterministic, brand-safe text overlay.
-    Works in Gradio / Colab / Kaggle / HF Spaces.
+    Deterministic, brand-safe text overlay.
+    Will NEVER crash due to font issues.
     """
-
-    # --- SAFETY CHECK (important for debugging) ---
-    if not os.path.exists(HEADLINE_FONT_PATH):
-        raise FileNotFoundError(
-            f"Headline font not found at {HEADLINE_FONT_PATH}"
-        )
-
-    if not os.path.exists(BODY_FONT_PATH):
-        raise FileNotFoundError(
-            f"Body font not found at {BODY_FONT_PATH}"
-        )
 
     draw = ImageDraw.Draw(image)
     width, height = image.size
 
-    headline_font = ImageFont.truetype(
+    headline_font = _load_font_safe(
         HEADLINE_FONT_PATH, size=54
     )
 
-    body_font = ImageFont.truetype(
+    body_font = _load_font_safe(
         BODY_FONT_PATH, size=28
     )
 
