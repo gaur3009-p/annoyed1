@@ -17,6 +17,11 @@ def overlay_text(
     headline: str,
     copy: str
 ):
+    """
+    Adds deterministic, brand-safe text overlay.
+    No AI involved here.
+    """
+
     draw = ImageDraw.Draw(image)
     width, height = image.size
 
@@ -28,7 +33,15 @@ def overlay_text(
         BODY_FONT_PATH, size=28
     )
 
-    # --- Headline ---
+    # ---- Headline shadow ----
+    draw.text(
+        (width * 0.08 + 2, height * 0.62 + 2),
+        headline,
+        fill=(0, 0, 0),
+        font=headline_font
+    )
+
+    # ---- Headline ----
     draw.text(
         (width * 0.08, height * 0.62),
         headline,
@@ -36,12 +49,11 @@ def overlay_text(
         font=headline_font
     )
 
-    # --- Copy ---
+    # ---- Copy ----
     draw.text(
         (width * 0.08, height * 0.72),
         copy,
         fill=(230, 230, 230),
         font=body_font
     )
-
     return image
