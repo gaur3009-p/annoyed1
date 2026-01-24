@@ -1,10 +1,116 @@
-gradio
-transformers
-torch
-accelerate
-sentencepiece
-bitsandbytes
-chromadb
-sentence-transformers
-diffusers
-huggingface_hub
+# =============================================================================
+# ROOKUS - ENHANCED DEMO VERSION
+# FREE AI Models from Hugging Face - No API Keys Required!
+# =============================================================================
+
+# ============= CORE FRAMEWORK =============
+gradio==4.44.0
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+
+# ============= AI & ML - TEXT GENERATION =============
+transformers==4.45.0
+torch==2.1.2
+accelerate==0.26.1
+sentencepiece==0.1.99
+protobuf==4.25.0
+
+# Quantization for efficient inference
+bitsandbytes==0.41.3
+scipy==1.11.4
+
+# ============= AI & ML - IMAGE GENERATION =============
+diffusers==0.28.0
+pillow==10.2.0
+numpy==1.26.3
+
+# Optional: For faster image generation
+# xformers==0.0.23  # Uncomment if you have compatible GPU
+
+# ============= TEXT EMBEDDINGS & SCORING =============
+sentence-transformers==2.3.1
+
+# ============= DATA HANDLING =============
+pandas==2.1.4
+chromadb==0.4.22
+
+# ============= UTILITIES =============
+python-dotenv==1.0.0
+pyyaml==6.0.1
+
+# ============= DEVELOPMENT & TESTING =============
+pytest==8.0.0
+pytest-asyncio==0.23.4
+black==24.1.1
+ruff==0.2.0
+
+# ============= MONITORING & LOGGING =============
+loguru==0.7.2
+
+# =============================================================================
+# INSTALLATION INSTRUCTIONS
+# =============================================================================
+
+# Basic Installation (CPU only):
+# pip install -r requirements.txt
+
+# GPU Installation (NVIDIA CUDA):
+# pip install -r requirements.txt
+# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+# Apple Silicon (MPS):
+# pip install -r requirements.txt
+# (torch comes with MPS support by default on macOS)
+
+# =============================================================================
+# OPTIONAL ENHANCEMENTS
+# =============================================================================
+
+# For faster image generation (requires compatible GPU):
+# pip install xformers==0.0.23
+
+# For video generation (future feature):
+# pip install imageio-ffmpeg==0.4.9
+
+# For audio generation (future feature):
+# pip install soundfile==0.12.1
+
+# =============================================================================
+# SYSTEM REQUIREMENTS
+# =============================================================================
+
+# Minimum (CPU):
+# - 8GB RAM
+# - 20GB storage
+# - Generation time: 2-5 minutes per campaign
+
+# Recommended (GPU):
+# - 16GB RAM
+# - NVIDIA GPU with 8GB+ VRAM (GTX 1070, RTX 3060, etc.)
+# - 30GB storage
+# - Generation time: 30-60 seconds per campaign
+
+# Optimal (High-end GPU):
+# - 32GB RAM
+# - NVIDIA RTX 3090/4090 (24GB VRAM)
+# - 50GB storage
+# - Generation time: 15-30 seconds per campaign
+
+# =============================================================================
+# NOTES
+# =============================================================================
+
+# ✅ All models are FREE and open-source from Hugging Face
+# ✅ No API keys required
+# ✅ Works offline after initial model download
+# ✅ Models are cached locally (~15-20GB total)
+# ✅ First run downloads models (one-time, takes 10-20 minutes)
+# ✅ Subsequent runs are fast
+
+# Model download locations:
+# - Linux/Mac: ~/.cache/huggingface/
+# - Windows: C:\Users\{username}\.cache\huggingface\
+
+# To change cache directory:
+# export HF_HOME=/path/to/your/cache
