@@ -1,5 +1,4 @@
 import gradio as gr
-
 from campaign_structurer import structure_campaign
 from prompt_engine import build_prompt
 from llm_client import generate_text
