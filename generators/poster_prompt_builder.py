@@ -1,18 +1,23 @@
-def build_poster_prompt(campaign, headline, copy):
+def build_poster_prompt(campaign):
     return f"""
-Abstract premium marketing poster background.
+Purely visual abstract brand background.
 
 Industry: {campaign['industry']}
 Brand tone: {campaign['tone']}
 Emotion: {campaign['emotion'][0]}
 
-Visual inspiration:
-{headline}
-{copy}
+Visual style:
+organic shapes,
+soft gradients,
+premium lighting,
+cinematic depth,
+modern beauty aesthetic
 
-Style:
-clean, minimal, premium,
-abstract tech, soft gradients,
-cinematic lighting, high contrast,
-background only, no text
+STRICT:
+no text,
+no letters,
+no words,
+no typography,
+no logos,
+background only
 """
